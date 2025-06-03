@@ -17,6 +17,7 @@ const enable = true
  * false = 禁用
  */
 const ruleOptions = {
+  pt: true, // PT/BT站点
   apple: true, // 苹果服务
   microsoft: true, // 微软服务
   github: true, // Github服务
@@ -30,7 +31,6 @@ const ruleOptions = {
   disney: true, // 迪士尼
   pixiv: true, // Pixiv
   hbo: true, // HBO
-  biliintl: true, // 哔哩哔哩东南亚
   tvb: true, // TVB
   hulu: true, // Hulu
   primevideo: true, // 亚马逊prime video
@@ -38,9 +38,6 @@ const ruleOptions = {
   line: true, // Line通讯软件
   whatsapp: true, // Whatsapp
   games: true, // 游戏策略组
-  japan: true, // 日本网站策略组
-  tracker: true, // 网络分析和跟踪服务
-  ads: true, // 常见的网络广告
 }
 
 /**
@@ -53,6 +50,8 @@ const rules = [
   'PROCESS-NAME,SunloginClient.exe,DIRECT',
   'PROCESS-NAME,AnyDesk,DIRECT',
   'PROCESS-NAME,AnyDesk.exe,DIRECT',
+  'DOMAIN-SUFFIX,torrentleech.org,其他节点',
+  'DOMAIN-SUFFIX,dmm.co.jp,JP日本',
 ]
 
 /**
@@ -65,7 +64,7 @@ const regionOptions = {
   excludeHighPercentage: true,
   regions: [
     {
-      name: 'HK香港',
+      name: '🇭🇰香港',
       regex: /港|🇭🇰|hk|hongkong|hong kong/i,
       ratioLimit: 2,
       icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Hong_Kong.png',
@@ -101,7 +100,7 @@ const regionOptions = {
       icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/China_Map.png',
     },
     {
-      name: 'TW台湾省',
+      name: 'TW台湾',
       regex: /台湾|🇹🇼|tw|taiwan|tai wan/i,
       ratioLimit: 2,
       icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/China.png',
@@ -129,6 +128,48 @@ const regionOptions = {
       regex: /土耳其|🇹🇷|tk|turkey/i,
       ratioLimit: 2,
       icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Turkey.png',
+    },
+    {
+      name: 'AU澳大利亚',
+      regex: /澳大利亚|澳洲|🇦🇺|au|australia/i,
+      ratioLimit: 2,
+      icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Australia.png',
+    },
+    {
+      name: 'PH菲律宾',
+      regex: /菲律宾|菲|🇵🇭|ph|pilipinas/i,
+      ratioLimit: 2,
+      icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Philippines.png',
+    },
+    {
+      name: 'CA加拿大',
+      regex: /加拿大|加|🇨🇦|ca|canada/i,
+      ratioLimit: 2,
+      icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Canada.png',
+    },
+    {
+      name: 'BR巴西',
+      regex: /巴西|🇧🇷|ca|brasil|brazil/i,
+      ratioLimit: 2,
+      icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Brazil.png',
+    },
+    {
+      name: 'TH泰国',
+      regex: /泰国|泰|🇹🇭|th|thailand/i,
+      ratioLimit: 2,
+      icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Thailand.png',
+    },
+    {
+      name: 'RU俄罗斯',
+      regex: /俄罗斯|俄|🇷🇺|ru|russia/i,
+      ratioLimit: 2,
+      icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Russia.png',
+    },
+    {
+      name: 'AR阿根廷',
+      regex: /阿根廷|🇦🇷|ar|argentina/i,
+      ratioLimit: 2,
+      icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Argentina.png',
     },
   ],
 }
@@ -379,6 +420,30 @@ function main(config) {
     udp: true,
   })
 
+  if (ruleOptions.pt) {
+    // 添加规则：使用远程 PT 规则集
+    rules.push('RULE-SET,pt,PT站')
+
+    // 设置规则集 provider
+    ruleProviders.set('pt', {
+      ...ruleProviderCommon,
+      behavior: 'classical',
+      format: 'text',
+      url: 'https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/category-pt.list',
+      path: './ruleset/MetaCubeX/category-pt.list',
+    })
+
+    // 添加策略组
+    config['proxy-groups'].push({
+      ...groupBaseOption,
+      name: 'PT站',
+      type: 'select',
+      proxies: ['默认节点', ...proxyGroupsRegionNames, '直连'],
+      url: 'https://www.pttime.org/favicon.ico', // 可换成任意 PT 图标地址
+      icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/BitTorrent.png',
+    })
+  }
+
   if (ruleOptions.openai) {
     rules.push(
       'DOMAIN-SUFFIX,grazie.ai,国外AI',
@@ -411,18 +476,6 @@ function main(config) {
       proxies: ['默认节点', ...proxyGroupsRegionNames, '直连'],
       url: 'https://www.youtube.com/s/desktop/494dd881/img/favicon.ico',
       icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/YouTube.png',
-    })
-  }
-
-  if (ruleOptions.biliintl) {
-    rules.push('GEOSITE,biliintl,哔哩哔哩东南亚')
-    config['proxy-groups'].push({
-      ...groupBaseOption,
-      name: '哔哩哔哩东南亚',
-      type: 'select',
-      proxies: ['默认节点', '直连', ...proxyGroupsRegionNames],
-      url: 'https://www.bilibili.tv/',
-      icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/bilibili_3.png',
     })
   }
 
@@ -596,28 +649,6 @@ function main(config) {
     })
   }
 
-  if (ruleOptions.tracker) {
-    rules.push('GEOSITE,tracker,跟踪分析')
-    config['proxy-groups'].push({
-      ...groupBaseOption,
-      name: '跟踪分析',
-      type: 'select',
-      proxies: ['REJECT', '直连', '默认节点'],
-      icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Reject.png',
-    })
-  }
-
-  if (ruleOptions.ads) {
-    rules.push('GEOSITE,category-ads-all,广告过滤')
-    config['proxy-groups'].push({
-      ...groupBaseOption,
-      name: '广告过滤',
-      type: 'select',
-      proxies: ['REJECT', '直连', '默认节点'],
-      icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/Advertising.png',
-    })
-  }
-
   if (ruleOptions.apple) {
     rules.push('GEOSITE,apple-cn,苹果服务')
     config['proxy-groups'].push({
@@ -663,28 +694,6 @@ function main(config) {
       proxies: ['默认节点', ...proxyGroupsRegionNames, '直连'],
       url: 'https://github.com/robots.txt',
       icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/GitHub.png',
-    })
-  }
-
-  if (ruleOptions.japan) {
-    rules.push(
-      'RULE-SET,category-bank-jp,日本网站',
-      'GEOIP,jp,日本网站,no-resolve'
-    )
-    ruleProviders.set('category-bank-jp', {
-      ...ruleProviderCommon,
-      behavior: 'domain',
-      format: 'mrs',
-      url: 'https://fastly.jsdelivr.net/gh/MetaCubeX/meta-rules-dat@meta/geo/geosite/category-bank-jp.mrs',
-      path: './ruleset/MetaCubeX/category-bank-jp.mrs',
-    })
-    config['proxy-groups'].push({
-      ...groupBaseOption,
-      name: '日本网站',
-      type: 'select',
-      proxies: ['默认节点', ...proxyGroupsRegionNames, '直连'],
-      url: 'https://r.r10s.jp/com/img/home/logo/touch.png',
-      icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/JP.png',
     })
   }
 
