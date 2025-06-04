@@ -439,8 +439,8 @@ function main(config) {
       name: 'PT站',
       type: 'select',
       proxies: ['默认节点', ...proxyGroupsRegionNames, '直连'],
-      url: 'https://www.pttime.org/favicon.ico', // 可换成任意 PT 图标地址
-      icon: 'https://fastly.jsdelivr.net/gh/Koolson/Qure/IconSet/Color/BitTorrent.png',
+      url: 'https://cdn.jsdelivr.net/gh/hwangzhun/clash-verge-script@main/P2P.png', // 可换成任意 PT 图标地址
+      icon: 'https://cdn.jsdelivr.net/gh/hwangzhun/clash-verge-script@main/P2P.png',
     })
   }
 
